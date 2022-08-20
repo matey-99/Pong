@@ -2,7 +2,10 @@
 
 #include "InputReceiver.h"
 
+#include "Kismet/GameplayStatics.h"
+
 #include "PlayerPawn.h"
+#include "PongGameModeBase.h"
 
 // Sets default values
 AInputReceiver::AInputReceiver()
@@ -36,15 +39,17 @@ void AInputReceiver::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AInputReceiver::MovePlayer1(float Value)
 {
-	Player1Character->Move(Value);
+	Player1Pawn->Move(Value);
 }
 
 void AInputReceiver::MovePlayer2(float Value)
 {
-	Player2Character->Move(-Value);
+	Player2Pawn->Move(-Value);
 }
 
 void AInputReceiver::Shoot()
 {
+	auto GameMode = Cast<APongGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->ShootBall();
 }
 

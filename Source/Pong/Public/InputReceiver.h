@@ -28,8 +28,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE void SetPlayer1Character(APlayerPawn* Character) { Player1Character = Character; }
-	FORCEINLINE void SetPlayer2Character(APlayerPawn* Character) { Player2Character = Character; }
+	FORCEINLINE void SetPlayer1Pawn(APlayerPawn* InPlayer1Pawn) { Player1Pawn = InPlayer1Pawn; }
+	FORCEINLINE void SetPlayer2Pawn(APlayerPawn* InPlayer2Pawn) { Player2Pawn = InPlayer2Pawn; }
 
 private:
 	void MovePlayer1(float Value);
@@ -37,6 +37,6 @@ private:
 	void Shoot();
 
 private:
-	APlayerPawn* Player1Character;
-	APlayerPawn* Player2Character;
+	APlayerPawn* Player1Pawn;
+	APlayerPawn* Player2Pawn;
 };

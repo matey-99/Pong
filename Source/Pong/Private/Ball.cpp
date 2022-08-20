@@ -1,7 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Ball.h"
+
+#include "DeathWall.h"
+#include "PlayerPawn.h"
+#include "PongGameModeBase.h"
+#include "PongGameStateBase.h"
+
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABall::ABall()
@@ -24,18 +30,38 @@ void ABall::BeginPlay()
 	
 	StaticMesh->OnComponentHit.AddUniqueDynamic(this, &ABall::OnHit);
 
-	StaticMesh->SetPhysicsLinearVelocity(FVector(0, 1, 0) * 300);
 }
 
 // Called every frame
 void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	auto PongGameState = Cast<APongGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	float Speed = PongGameState->GetCurrentBallSpeed();
+
+	FVector CurrentVelocity = StaticMesh->GetPhysicsLinearVelocity();
+	CurrentVelocity.Normalize();
+	CurrentVelocity *= Speed;
+
+	StaticMesh->SetPhysicsLinearVelocity(CurrentVelocity);
+}
+
+void ABall::Shoot(FVector Velocity)
+{
+	StaticMesh->SetPhysicsLinearVelocity(Velocity);
 }
 
 void ABall::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	FVector NewDirection = Hit.Normal;
-	NewDirection.Z = 0.0f;
-	StaticMesh->SetPhysicsLinearVelocity(NewDirection * 300);
+	if (Cast<APlayerPawn>(OtherActor))
+	{
+		auto PongGameState = Cast<APongGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+		PongGameState->IncreaseBallSpeed();
+	}
+	else if (auto DeathWall = Cast<ADeathWall>(OtherActor))
+	{
+		auto GameMode = Cast<APongGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		GameMode->OnGetPoint(DeathWall->GetConnectedPlayerNumber());
+	}
 }
