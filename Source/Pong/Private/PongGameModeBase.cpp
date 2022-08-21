@@ -9,6 +9,7 @@
 
 #include "PongPlayerController.h"
 #include "PongGameStateBase.h"
+#include "MainMenuWidget.h"
 #include "InputReceiver.h"
 #include "PlayerPawn.h"
 #include "PongCamera.h"
@@ -16,20 +17,76 @@
 
 APongGameModeBase::APongGameModeBase()
 {
-	bPlayer1Start = true;
+	ScoreToWin = 12;
+	MaxGameTime = 120.0f;
 	BallSpawnOffset = 300.0f;
 }
 
 void APongGameModeBase::StartGame()
 {
+	HideMainMenu();
+	SpawnInputReceiver();
+
+	for (TActorIterator<APlayerStart> ActorIt(GetWorld()); ActorIt; ++ActorIt)
+	{
+		auto PlayerStartActor = *ActorIt;
+		SpawnTransforms.Add(PlayerStartActor->GetActorTransform());
+	}
+
+	PlayerControllers.Add(Cast<APongPlayerController>(UGameplayStatics::CreatePlayer(GetWorld())));
+	PlayerControllers.Add(Cast<APongPlayerController>(UGameplayStatics::CreatePlayer(GetWorld())));
+
+	for (int Index = 0; Index < PlayerControllers.Num(); ++Index)
+	{
+		FActorSpawnParameters SpawnParams;
+		auto PlayerPawn = GetWorld()->SpawnActor<APlayerPawn>(PlayerPawnClass, SpawnTransforms[Index], SpawnParams);
+		PlayerControllers[Index]->Possess(PlayerPawn);
+
+		if (Index == 0)
+		{
+			InputReceiver->SetPlayer1Pawn(PlayerPawn);
+
+			auto StaticMesh = PlayerPawn->GetStaticMeshComponent();
+			auto Material = StaticMesh->GetMaterial(0);
+			auto DynamicMaterialInstance = UMaterialInstanceDynamic::Create(Material, this);
+			DynamicMaterialInstance->SetVectorParameterValue("EmissiveColor", FVector4(0.0f, 1.0f, 0.0f, 1.0f));
+			StaticMesh->SetMaterial(0, DynamicMaterialInstance);
+		}
+		else
+		{
+			InputReceiver->SetPlayer2Pawn(PlayerPawn);
+
+			auto StaticMesh = PlayerPawn->GetStaticMeshComponent();
+			auto Material = StaticMesh->GetMaterial(0);
+			auto DynamicMaterialInstance = UMaterialInstanceDynamic::Create(Material, this);
+			DynamicMaterialInstance->SetVectorParameterValue("EmissiveColor", FVector4(1.0f, 0.0f, 0.0f, 1.0f));
+			StaticMesh->SetMaterial(0, DynamicMaterialInstance);
+		}
+
+		PlayerPawns.Add(PlayerPawn);
+	}
+
+	int PlayerNum = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+	for (int32 Count = 0; Count < PlayerNum; ++Count)
+	{
+		auto PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
+		auto PongPC = Cast<APongPlayerController>(PC);
+		PongPC->DisplayGamePanel();
+	}
+
+	InitCamera();
+	SpawnBallAtPlayer(EPlayerNumber::Player1);
 }
 
-void APongGameModeBase::PauseGame()
+void APongGameModeBase::EndGame()
 {
-}
-
-void APongGameModeBase::QuitGame()
-{
+	int PlayerNum = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+	for (int32 Count = 0; Count < PlayerNum; ++Count)
+	{
+		auto PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
+		auto PongPC = Cast<APongPlayerController>(PC);
+		PongPC->HideGamePanel();
+	}
 }
 
 void APongGameModeBase::ShootBall()
@@ -52,6 +109,8 @@ void APongGameModeBase::ShootBall()
 	Ball->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Ball->FindComponentByClass<UStaticMeshComponent>()->SetSimulatePhysics(true);
 	Ball->Shoot(BallDirection * PongGameState->GetStartBallSpeed());
+
+	PongGameState->SetBallInGame(true);
 }
 
 void APongGameModeBase::OnGetPoint(EPlayerNumber LoserPlayerNumber)
@@ -68,39 +127,23 @@ void APongGameModeBase::OnGetPoint(EPlayerNumber LoserPlayerNumber)
 	}
 
 	DestroyBall();
+	PongGameState->ResetBallSpeed();
 	SpawnBallAtPlayer(LoserPlayerNumber);
+
+	PongGameState->UpdatePlayerGamePanels();
+	PongGameState->SetBallInGame(false);
 }
 
 void APongGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnInputReceiver();
+	InitCamera();
+	DisplayMainMenu();
+}
 
-	for (TActorIterator<APlayerStart> ActorIt(GetWorld()); ActorIt; ++ActorIt)
-	{
-		auto PlayerStartActor = *ActorIt;
-		SpawnTransforms.Add(PlayerStartActor->GetActorTransform());
-	}
-
-	PlayerControllers.Add(Cast<APongPlayerController>(UGameplayStatics::CreatePlayer(GetWorld())));
-	PlayerControllers.Add(Cast<APongPlayerController>(UGameplayStatics::CreatePlayer(GetWorld())));
-
-	for (int Index = 0; Index < PlayerControllers.Num(); ++Index)
-	{
-		FActorSpawnParameters SpawnParams;
-		//SpawnParams.Name = FName("Player" + FString::FromInt(Index) + "Pawn");
-		auto PlayerPawn = GetWorld()->SpawnActor<APlayerPawn>(PlayerPawnClass, SpawnTransforms[Index], SpawnParams);
-		PlayerControllers[Index]->Possess(PlayerPawn);
-
-		if (Index == 0)
-			InputReceiver->SetPlayer1Pawn(PlayerPawn);
-		else
-			InputReceiver->SetPlayer2Pawn(PlayerPawn);
-
-		PlayerPawns.Add(PlayerPawn);
-	}
-
+void APongGameModeBase::InitCamera()
+{
 	if (auto CameraActor = UGameplayStatics::GetActorOfClass(GetWorld(), APongCamera::StaticClass()))
 		PongCamera = Cast<APongCamera>(CameraActor);
 	else
@@ -109,21 +152,28 @@ void APongGameModeBase::BeginPlay()
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Name = TEXT("Pong Camera");
-
 		PongCamera = GetWorld()->SpawnActor<APongCamera>(APongCamera::StaticClass(), DefaultCameraTransform, SpawnParams);
 	}
 
 	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PC->SetViewTarget(PongCamera);
+}
 
-	for (auto PlayerController : PlayerControllers)
+void APongGameModeBase::DisplayMainMenu()
+{
+	MainMenuWidget = CreateWidget<UMainMenuWidget>(GetWorld(), MainMenuWidgetClass, TEXT("MainMenu"));
+	MainMenuWidget->AddToViewport();
+}
+
+void APongGameModeBase::HideMainMenu()
+{
+	if (MainMenuWidget)
 	{
-		FViewTargetTransitionParams ViewTargetTransitionParams;
-		PlayerController->SetViewTarget(PongCamera, ViewTargetTransitionParams);
-	}
+		MainMenuWidget->HideAllWidgets();
 
-	/* Spawn Ball */
-	SpawnBallAtPlayer(EPlayerNumber::Player1);
+		MainMenuWidget->RemoveFromParent();
+		MainMenuWidget = nullptr;
+	}
 }
 
 void APongGameModeBase::SpawnInputReceiver()

@@ -16,6 +16,5 @@ class PONG_API APongNormalGameMode : public APongGameModeBase
 	
 public:
 	virtual void StartGame() override;
-	virtual void PauseGame() override;
-	virtual void QuitGame() override;
+	virtual void EndGame() override;
 };

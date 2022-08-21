@@ -7,6 +7,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "PongGameStateBase.generated.h"
 
+class APongGameModeBase;
+
 /**
  * 
  */
@@ -27,12 +29,26 @@ public:
 	FORCEINLINE uint8 GetPlayer1Score() const { return Player1Score; }
 	FORCEINLINE uint8 GetPlayer2Score() const { return Player2Score; }
 
+	FORCEINLINE void SetBallInGame(bool bInBallInGame) { bBallInGame = bInBallInGame; }
 	FORCEINLINE void SetBallOwnerNumber(EPlayerNumber InBallOwnerNumber) { BallOwnerNumber = InBallOwnerNumber; }
 
-	FORCEINLINE void Player1AddPoint() { Player1Score++; }
-	FORCEINLINE void Player2AddPoint() { Player2Score++; }
+	FORCEINLINE void ResetBallSpeed() { CurrentBallSpeed = StartBallSpeed; }
+
+	void Player1AddPoint();
+	void Player2AddPoint();
+
+	void UpdatePlayerGamePanels();
+
+protected:
+	// Start of AActor Implementation
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	// End of AActor Implementation
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	APongGameModeBase* PongGameMode;
+
 	UPROPERTY(EditAnywhere, Category = "Game Rules")
 	float StartBallSpeed;
 
@@ -41,6 +57,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Game Rules")
 	float BallShootConeHalfAngleDeg;
+
+	UPROPERTY(VisibleAnywhere, Category = "Game State")
+	bool bBallInGame;
+
+	UPROPERTY(VisibleAnywhere, Category = "Game State")
+	float GameTime;
 
 	UPROPERTY(VisibleAnywhere, Category = "Game State")
 	float CurrentBallSpeed;

@@ -42,7 +42,15 @@ void ABall::Tick(float DeltaTime)
 
 	FVector CurrentVelocity = StaticMesh->GetPhysicsLinearVelocity();
 	CurrentVelocity.Normalize();
+
+	if (FMath::Abs(CurrentVelocity.Y) < 0.5f)
+	{
+		float Sign = FMath::Sign(CurrentVelocity.Y);
+		CurrentVelocity.Y = 0.5f * Sign;
+	}
+
 	CurrentVelocity *= Speed;
+
 
 	StaticMesh->SetPhysicsLinearVelocity(CurrentVelocity);
 }

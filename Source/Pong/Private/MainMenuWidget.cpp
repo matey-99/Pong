@@ -2,8 +2,20 @@
 
 #include "MainMenuWidget.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"
 #include "Components/Slider.h"
+
+#include "PongGameModeBase.h"
+#include "StartGameMenuWidget.h"
+
+void UMainMenuWidget::HideAllWidgets()
+{
+	for (auto Widget : Widgets)
+		Widget->RemoveFromParent();
+
+	Widgets.Empty();
+}
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -12,5 +24,9 @@ void UMainMenuWidget::NativeConstruct()
 
 void UMainMenuWidget::OnStartGameButtonClicked()
 {
+	auto StartGameMenu = CreateWidget<UStartGameMenuWidget>(GetWorld(), StartGameMenuWidgetClass, TEXT("StartGameMenu"));
+	StartGameMenu->Init(this);
+	StartGameMenu->Display();
 
+	Widgets.Add(StartGameMenu);
 }

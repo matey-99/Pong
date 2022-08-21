@@ -8,6 +8,7 @@
 
 class UButton;
 class USlider;
+class UStartGameMenuWidget;
 
 /**
  * 
@@ -17,6 +18,9 @@ class PONG_API UMainMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	void HideAllWidgets();
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -25,12 +29,12 @@ private:
 	void OnStartGameButtonClicked();
 
 private:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UStartGameMenuWidget> StartGameMenuWidgetClass;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<UUserWidget*> Widgets;
+
 	UPROPERTY(Meta = (BindWidget))
 	UButton* StartGameButton;
-
-	UPROPERTY(Meta = (BindWidget))
-	USlider* MaxGameTimeSlider;
-
-	UPROPERTY(Meta = (BindWidget))
-	USlider* ScoreToWinSlider;
 };

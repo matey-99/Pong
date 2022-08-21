@@ -13,6 +13,7 @@ class APlayerPawn;
 class APongCamera;
 class AInputReceiver;
 class ABall;
+class UMainMenuWidget;
 
 /**
  * 
@@ -29,10 +30,7 @@ public:
 	virtual void StartGame();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void PauseGame();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void QuitGame();
+	virtual void EndGame();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ShootBall();
@@ -40,18 +38,40 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnGetPoint(EPlayerNumber LoserPlayerNumber);
 
+	/* Getters */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE uint8 GetScoreToWin() const { return ScoreToWin; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetMaxGameTime() const { return MaxGameTime; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE TArray<APongPlayerController*> GetPlayerControllers() const { return PlayerControllers; }
+
+	/* Setters */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetScoreToWin(uint8 InScoreToWin) { ScoreToWin = InScoreToWin; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetMaxGameTime(float InMaxGameTime) { MaxGameTime = InMaxGameTime; }
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	void InitCamera();
+	void DisplayMainMenu();
+	void HideMainMenu();
 	void SpawnInputReceiver();
-
 	void SpawnBallAtPlayer(EPlayerNumber PlayerNumber);
 	void DestroyBall();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Rules")
-	bool bPlayer1Start;
+	uint8 ScoreToWin;
+
+	UPROPERTY(EditAnywhere, Category = "Rules")
+	float MaxGameTime;
 
 	UPROPERTY(EditAnywhere, Category = "Players")
 	TSubclassOf<APlayerPawn> PlayerPawnClass;
@@ -82,4 +102,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Ball")
 	float BallSpawnOffset;
+
+	/* Widgets */
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	TSubclassOf<UMainMenuWidget> MainMenuWidgetClass;
+	UMainMenuWidget* MainMenuWidget;
 };

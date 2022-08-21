@@ -8,12 +8,7 @@ void APongNormalGameMode::StartGame()
 	Super::StartGame();
 }
 
-void APongNormalGameMode::PauseGame()
+void APongNormalGameMode::EndGame()
 {
-	Super::PauseGame();
-}
-
-void APongNormalGameMode::QuitGame()
-{
-	Super::QuitGame();
+	Super::EndGame();
 }
