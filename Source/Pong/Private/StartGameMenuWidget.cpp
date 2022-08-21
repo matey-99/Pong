@@ -55,6 +55,10 @@ void UStartGameMenuWidget::Hide()
 
 void UStartGameMenuWidget::StartLocalPlayerVsPlayerGame()
 {
+	MainMenuWidget->HideAllWidgets();
+	MainMenuWidget->RemoveFromParent();
+	MainMenuWidget = nullptr;
+
 	auto GameMode = Cast<APongGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->StartGame();
 }

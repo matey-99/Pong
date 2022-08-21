@@ -12,18 +12,38 @@ APongGameStateBase::APongGameStateBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	WinnerNumber = 0;
+	Player1Score = 0;
+	Player2Score = 0;
+
 	GameTime = 0.0f;
-	StartBallSpeed = 1000.0f;
+	StartBallSpeed = 1250.0f;
+	MaxBallSpeed = 1750.0f;
 	BallSpeedIncreasePerReflection = 50.0f;
 	BallShootConeHalfAngleDeg = 30.0f;
 	CurrentBallSpeed = StartBallSpeed;
 	BallOwnerNumber = EPlayerNumber::Player1;
 	bBallInGame = false;
+	bInPlayState = false;
+}
+
+void APongGameStateBase::Reset()
+{
+	GameTime = 0.0f;
+	CurrentBallSpeed = StartBallSpeed;
+	BallOwnerNumber = EPlayerNumber::Player1;
+	bBallInGame = false;
+	bInPlayState = false;
+
+	Player1Score = 0;
+	Player2Score = 0;
+	WinnerNumber = 0;
 }
 
 void APongGameStateBase::IncreaseBallSpeed()
 {
 	CurrentBallSpeed += BallSpeedIncreasePerReflection;
+	CurrentBallSpeed = FMath::Clamp(CurrentBallSpeed, StartBallSpeed, MaxBallSpeed);
 }
 
 void APongGameStateBase::Player1AddPoint()
@@ -31,6 +51,8 @@ void APongGameStateBase::Player1AddPoint()
 	Player1Score++;
 	if (Player1Score >= PongGameMode->GetScoreToWin())
 	{
+		bInPlayState = false;
+		WinnerNumber = 1;
 		PongGameMode->EndGame();
 	}
 }
@@ -40,6 +62,8 @@ void APongGameStateBase::Player2AddPoint()
 	Player2Score++;
 	if (Player2Score >= PongGameMode->GetScoreToWin())
 	{
+		bInPlayState = false;
+		WinnerNumber = 2;
 		PongGameMode->EndGame();
 	}
 }

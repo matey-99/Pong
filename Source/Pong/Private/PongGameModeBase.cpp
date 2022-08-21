@@ -9,6 +9,7 @@
 
 #include "PongPlayerController.h"
 #include "PongGameStateBase.h"
+#include "FinalScoreWidget.h"
 #include "MainMenuWidget.h"
 #include "InputReceiver.h"
 #include "PlayerPawn.h"
@@ -17,14 +18,13 @@
 
 APongGameModeBase::APongGameModeBase()
 {
-	ScoreToWin = 12;
-	MaxGameTime = 120.0f;
+	ScoreToWin = 6;
+	MaxGameTime = 60.0f;
 	BallSpawnOffset = 300.0f;
 }
 
 void APongGameModeBase::StartGame()
 {
-	HideMainMenu();
 	SpawnInputReceiver();
 
 	for (TActorIterator<APlayerStart> ActorIt(GetWorld()); ActorIt; ++ActorIt)
@@ -66,27 +66,45 @@ void APongGameModeBase::StartGame()
 		PlayerPawns.Add(PlayerPawn);
 	}
 
-	int PlayerNum = UGameplayStatics::GetNumPlayerControllers(GetWorld());
-	for (int32 Count = 0; Count < PlayerNum; ++Count)
-	{
-		auto PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
-		auto PongPC = Cast<APongPlayerController>(PC);
-		PongPC->DisplayGamePanel();
-	}
+	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	auto PongPC = Cast<APongPlayerController>(PC);
+	PongPC->DisplayGamePanel();
 
 	InitCamera();
 	SpawnBallAtPlayer(EPlayerNumber::Player1);
+
+	SetInputModeGame();
+	
+	auto PongGameState = GetGameState<APongGameStateBase>();
+	PongGameState->SetInPlayState(true);
 }
 
 void APongGameModeBase::EndGame()
 {
-	int PlayerNum = UGameplayStatics::GetNumPlayerControllers(GetWorld());
-	for (int32 Count = 0; Count < PlayerNum; ++Count)
-	{
-		auto PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
-		auto PongPC = Cast<APongPlayerController>(PC);
-		PongPC->HideGamePanel();
-	}
+	auto MainPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	auto PongMainPC = Cast<APongPlayerController>(MainPC);
+	PongMainPC->HideGamePanel();
+
+	UGameplayStatics::RemovePlayer(UGameplayStatics::GetPlayerController(GetWorld(), 2), true);
+	UGameplayStatics::RemovePlayer(UGameplayStatics::GetPlayerController(GetWorld(), 1), true);
+
+	DestroyBall();
+	DestroyInputReceiver();
+
+	InitCamera();
+
+	FinalScoreWidget = CreateWidget<UFinalScoreWidget>(GetWorld(), FinalScoreWidgetClass, TEXT("FinalScore"));
+
+	auto PongGameState = GetGameState<APongGameStateBase>();
+	FString WinnerStr = PongGameState->GetWinnerNumber() == 1 ? "Player 1" : "Player 2";
+	WinnerStr.Append(" Win!");
+	FString Player1ScoreStr = FString::FromInt(PongGameState->GetPlayer1Score());
+	FString Player2ScoreStr = FString::FromInt(PongGameState->GetPlayer2Score());
+
+	FinalScoreWidget->Init(WinnerStr, Player1ScoreStr, Player2ScoreStr);
+	FinalScoreWidget->AddToViewport();
+
+	SetInputModeUI();
 }
 
 void APongGameModeBase::ShootBall()
@@ -116,6 +134,11 @@ void APongGameModeBase::ShootBall()
 void APongGameModeBase::OnGetPoint(EPlayerNumber LoserPlayerNumber)
 {
 	auto PongGameState = GetGameState<APongGameStateBase>();
+
+	DestroyBall();
+	PongGameState->SetBallInGame(false);
+	PongGameState->ResetBallSpeed();
+
 	switch (LoserPlayerNumber)
 	{
 	case EPlayerNumber::Player1:
@@ -125,13 +148,12 @@ void APongGameModeBase::OnGetPoint(EPlayerNumber LoserPlayerNumber)
 		PongGameState->Player1AddPoint();
 		break;
 	}
-
-	DestroyBall();
-	PongGameState->ResetBallSpeed();
-	SpawnBallAtPlayer(LoserPlayerNumber);
-
 	PongGameState->UpdatePlayerGamePanels();
-	PongGameState->SetBallInGame(false);
+
+	if (PongGameState->IsInPlayState())
+	{
+		SpawnBallAtPlayer(LoserPlayerNumber);
+	}
 }
 
 void APongGameModeBase::BeginPlay()
@@ -140,6 +162,42 @@ void APongGameModeBase::BeginPlay()
 
 	InitCamera();
 	DisplayMainMenu();
+
+	SetInputModeUI();
+}
+
+void APongGameModeBase::Reset()
+{
+	PlayerControllers.Empty();
+	PlayerPawns.Empty();
+	SpawnTransforms.Empty();
+
+	if (InputReceiver)
+	{
+		InputReceiver->Destroy();
+		InputReceiver = nullptr;
+	}
+
+	if (Ball)
+	{
+		Ball->Destroy();
+		Ball = nullptr;
+	}
+
+	if (MainMenuWidget)
+	{
+		MainMenuWidget->RemoveFromParent();
+		MainMenuWidget = nullptr;
+	}
+
+	if (FinalScoreWidget)
+	{
+		FinalScoreWidget->RemoveFromParent();
+		FinalScoreWidget = nullptr;
+	}
+
+	auto PongGameState = GetGameState<APongGameStateBase>();
+	PongGameState->Reset();
 }
 
 void APongGameModeBase::InitCamera()
@@ -179,11 +237,16 @@ void APongGameModeBase::HideMainMenu()
 void APongGameModeBase::SpawnInputReceiver()
 {
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.Name = "InputReceiver";
 	InputReceiver = GetWorld()->SpawnActor<AInputReceiver>(AInputReceiver::StaticClass(), SpawnParams);
 
 	auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerController->Possess(InputReceiver);
+}
+
+void APongGameModeBase::DestroyInputReceiver()
+{
+	InputReceiver->Destroy();
+	InputReceiver = nullptr;
 }
 
 void APongGameModeBase::SpawnBallAtPlayer(EPlayerNumber PlayerNumber)
@@ -218,4 +281,26 @@ void APongGameModeBase::SpawnBallAtPlayer(EPlayerNumber PlayerNumber)
 void APongGameModeBase::DestroyBall()
 {
 	Ball->Destroy();
+}
+
+void APongGameModeBase::SetInputModeGame()
+{
+	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PC->SetInputMode(FInputModeGameOnly());
+	PC->SetIgnoreMoveInput(false);
+	PC->SetIgnoreLookInput(false);
+	PC->bShowMouseCursor = false;
+	PC->bEnableClickEvents = false;
+	PC->bEnableMouseOverEvents = false;
+}
+
+void APongGameModeBase::SetInputModeUI()
+{
+	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PC->SetInputMode(FInputModeUIOnly());
+	PC->SetIgnoreMoveInput(true);
+	PC->SetIgnoreLookInput(true);
+	PC->bShowMouseCursor = true;
+	PC->bEnableClickEvents = true;
+	PC->bEnableMouseOverEvents = true;
 }

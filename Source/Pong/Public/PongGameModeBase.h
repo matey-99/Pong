@@ -14,6 +14,7 @@ class APongCamera;
 class AInputReceiver;
 class ABall;
 class UMainMenuWidget;
+class UFinalScoreWidget;
 
 /**
  * 
@@ -31,6 +32,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void EndGame();
+
+	UFUNCTION(BlueprintCallable)
+	void Reset();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ShootBall();
@@ -59,12 +63,20 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+
 	void InitCamera();
+
 	void DisplayMainMenu();
 	void HideMainMenu();
+
 	void SpawnInputReceiver();
+	void DestroyInputReceiver();
+
 	void SpawnBallAtPlayer(EPlayerNumber PlayerNumber);
 	void DestroyBall();
+
+	void SetInputModeGame();
+	void SetInputModeUI();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Rules")
@@ -107,4 +119,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	TSubclassOf<UMainMenuWidget> MainMenuWidgetClass;
 	UMainMenuWidget* MainMenuWidget;
+
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	TSubclassOf<UFinalScoreWidget> FinalScoreWidgetClass;
+	UFinalScoreWidget* FinalScoreWidget;
+
 };

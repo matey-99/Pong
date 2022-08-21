@@ -10,9 +10,9 @@ APlayerPawn::APlayerPawn()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	RootComponent = StaticMeshComponent;
+
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 }
 
@@ -34,6 +34,8 @@ void APlayerPawn::BeginPlay()
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//if (StaticMeshComponent->GetLocation)
 
 }
 
