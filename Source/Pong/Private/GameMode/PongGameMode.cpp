@@ -17,6 +17,7 @@
 #include "Gameplay/PongCamera.h"
 #include "Gameplay/Ball.h"
 #include "UI/WidgetManager.h"
+#include "Game/PongGameInstance.h"
 
 APongGameMode::APongGameMode()
 {
@@ -103,12 +104,23 @@ void APongGameMode::EndGame()
 	DestroyBall();
 	DestroyInputReceiver();
 
+	int8 P1Score = GS->GetPlayer1Score();
+	int8 P2Score = GS->GetPlayer2Score();
+
+	FGameHistoryEntry Entry;
+	Entry.GameDateTime = FDateTime::Now();
+	Entry.Player1Score = P1Score;
+	Entry.Player2Score = P2Score;
+	
+	UPongGameInstance* PongGameInstance = GetGameInstance<UPongGameInstance>();
+	PongGameInstance->AddEntryToGameHistory(Entry);
+	PongGameInstance->SerializeGameHistory();
+
 	InitCamera();
 
 	FinalScoreWidget = WidgetManager->GetWidget<UFinalScoreWidget>(UFinalScoreWidget::StaticClass());
 
-	int8 P1Score = GS->GetPlayer1Score();
-	int8 P2Score = GS->GetPlayer2Score();
+
 
 	FString WinnerStr;
 	if (P1Score > P2Score)

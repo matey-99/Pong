@@ -36,6 +36,12 @@ private:
 	UFUNCTION()
 	void OnStartGameButtonClicked();
 
+	UFUNCTION()
+	void OnQuitGameButtonClicked();
+
+	UFUNCTION()
+	void OnHistoryButtonClicked();
+
 private:
 	/** All widgets created by main menu widget */
 	UPROPERTY(VisibleAnywhere)
@@ -44,4 +50,12 @@ private:
 	/** Button that opens start game menu widget on click */
 	UPROPERTY(Meta = (BindWidget))
 	UButton* StartGameButton;
+
+	/** Button that quits game on click */
+	UPROPERTY(Meta = (BindWidget))
+	UButton* QuitGameButton;
+
+	/** Button that displays game history widget on click */
+	UPROPERTY(Meta = (BindWidget))
+	UButton* HistoryButton;
 };

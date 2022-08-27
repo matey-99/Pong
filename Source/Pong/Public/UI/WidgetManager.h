@@ -41,6 +41,10 @@ public:
 		}
 	}
 
+	/** Returns blueprint widget class with given base class */
+	TSubclassOf<UUserWidget> GetWidgetClass(UClass* BaseWidgetClass);
+
+
 
 private:
 	/** Contains all widget classes that are use in game.
