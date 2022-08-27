@@ -20,14 +20,6 @@ APlayerPawn::APlayerPawn()
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto PC = Cast<APlayerController>(GetController());
-
-	FString Message = "Possessed by: ";
-	Message.Append(FString::FromInt(UGameplayStatics::GetPlayerControllerID(PC)));
-
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, Message);
-	
 }
 
 // Called every frame
