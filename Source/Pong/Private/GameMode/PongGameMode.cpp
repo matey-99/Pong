@@ -89,8 +89,12 @@ void APongGameMode::StartGame()
 
 void APongGameMode::EndGame()
 {
-	auto MainPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	auto PongMainPC = Cast<APongPlayerController>(MainPC);
+	APongGameState* GS = GetGameState<APongGameState>();
+	GS->SetInPlayState(false);
+	GS->SetBallInGame(false);
+
+	APlayerController* MainPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	APongPlayerController* PongMainPC = Cast<APongPlayerController>(MainPC);
 	PongMainPC->HideGamePanel();
 
 	UGameplayStatics::RemovePlayer(UGameplayStatics::GetPlayerController(GetWorld(), 2), true);
@@ -103,11 +107,25 @@ void APongGameMode::EndGame()
 
 	FinalScoreWidget = WidgetManager->GetWidget<UFinalScoreWidget>(UFinalScoreWidget::StaticClass());
 
-	auto PongGameState = GetGameState<APongGameState>();
-	FString WinnerStr = PongGameState->GetWinnerNumber() == 1 ? "Player 1" : "Player 2";
-	WinnerStr.Append(" Win!");
-	FString Player1ScoreStr = FString::FromInt(PongGameState->GetPlayer1Score());
-	FString Player2ScoreStr = FString::FromInt(PongGameState->GetPlayer2Score());
+	int8 P1Score = GS->GetPlayer1Score();
+	int8 P2Score = GS->GetPlayer2Score();
+
+	FString WinnerStr;
+	if (P1Score > P2Score)
+	{
+		WinnerStr = "Player 1 Win!";
+	}
+	else if (P1Score < P2Score)
+	{
+		WinnerStr = "Player 2 Win!";
+	}
+	else
+	{
+		WinnerStr = "Draw!";
+	}
+
+	FString Player1ScoreStr = FString::FromInt(GS->GetPlayer1Score());
+	FString Player2ScoreStr = FString::FromInt(GS->GetPlayer2Score());
 
 	FinalScoreWidget->Init(WinnerStr, Player1ScoreStr, Player2ScoreStr);
 	FinalScoreWidget->AddToViewport();
@@ -117,7 +135,10 @@ void APongGameMode::EndGame()
 
 void APongGameMode::ShootBall()
 {
-	auto PongGameState = GetGameState<APongGameState>();
+	APongGameState* PongGameState = GetGameState<APongGameState>();
+	if (PongGameState->IsBallInGame())
+		return;
+
 	float BallShootConeHalfAngleRad = FMath::DegreesToRadians(PongGameState->GetBallShootConeHalfAngleDeg());
 	FVector BallDirection;
 	switch (PongGameState->GetBallOwnerNumber())
@@ -177,8 +198,11 @@ void APongGameMode::BeginPlay()
 	SetInputModeUI();
 }
 
-void APongGameMode::Reset()
+void APongGameMode::ResetGame()
 {
+	auto PongGameState = GetGameState<APongGameState>();
+	PongGameState->ResetStates();
+
 	PlayerControllers.Empty();
 	PlayerPawns.Empty();
 	SpawnTransforms.Empty();
@@ -206,9 +230,6 @@ void APongGameMode::Reset()
 		FinalScoreWidget->RemoveFromParent();
 		FinalScoreWidget = nullptr;
 	}
-
-	auto PongGameState = GetGameState<APongGameState>();
-	PongGameState->Reset();
 }
 
 void APongGameMode::InitCamera()
@@ -256,8 +277,11 @@ void APongGameMode::SpawnInputReceiver()
 
 void APongGameMode::DestroyInputReceiver()
 {
-	InputReceiver->Destroy();
-	InputReceiver = nullptr;
+	if (InputReceiver)
+	{
+		InputReceiver->Destroy();
+		InputReceiver = nullptr;
+	}
 }
 
 void APongGameMode::SpawnBallAtPlayer(EPlayerNumber PlayerNumber)
@@ -291,7 +315,10 @@ void APongGameMode::SpawnBallAtPlayer(EPlayerNumber PlayerNumber)
 
 void APongGameMode::DestroyBall()
 {
-	Ball->Destroy();
+	if (Ball)
+	{
+		Ball->Destroy();
+	}
 }
 
 void APongGameMode::SetInputModeGame()

@@ -20,7 +20,7 @@ class PONG_API APongGameState : public AGameStateBase
 public:
 	APongGameState();
 
-	void Reset();
+	void ResetStates();
 	void IncreaseBallSpeed();
 
 	FORCEINLINE float GetStartBallSpeed() const { return StartBallSpeed; }
@@ -31,6 +31,7 @@ public:
 	FORCEINLINE uint8 GetPlayer1Score() const { return Player1Score; }
 	FORCEINLINE uint8 GetPlayer2Score() const { return Player2Score; }
 	FORCEINLINE bool IsInPlayState() const { return bInPlayState; }
+	FORCEINLINE bool IsBallInGame() const { return bBallInGame; }
 
 	FORCEINLINE void SetBallInGame(bool bInBallInGame) { bBallInGame = bInBallInGame; }
 	FORCEINLINE void SetInPlayState(bool bIsPlaying) { bInPlayState = bIsPlaying; }

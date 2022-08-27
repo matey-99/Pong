@@ -7,6 +7,8 @@
 #include "Components/Button.h"
 
 #include "GameMode/PongGameMode.h"
+#include "UI/MainMenuWidget.h"
+#include "UI/WidgetManager.h"
 
 void UFinalScoreWidget::NativeConstruct()
 {
@@ -25,12 +27,18 @@ void UFinalScoreWidget::OnPlayAgainButtonClicked()
 {
 	RemoveFromParent();
 
-	auto GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->Reset();
+	APongGameMode* GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->ResetGame();
 	GameMode->StartGame();
 }
 
 void UFinalScoreWidget::OnBackButtonClicked()
 {
+	RemoveFromParent();
 
+	APongGameMode* GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->ResetGame();
+
+	UMainMenuWidget* MainMenu = GameMode->GetWidgetManager()->GetWidget<UMainMenuWidget>(UMainMenuWidget::StaticClass());
+	MainMenu->AddToViewport();
 }

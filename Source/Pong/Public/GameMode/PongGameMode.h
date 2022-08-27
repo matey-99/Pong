@@ -34,7 +34,7 @@ public:
 	virtual void EndGame();
 
 	UFUNCTION(BlueprintCallable)
-	void Reset();
+	void ResetGame();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ShootBall();

@@ -43,7 +43,7 @@ void UStartGameMenuWidget::Init(UMainMenuWidget* InMainMenuWidget)
 	ScoreToWinSlider->SetStepSize(1.0f);
 	ScoreToWinSlider->SetMinValue(1.0f);
 	ScoreToWinSlider->SetMaxValue(24.0f);
-	MaxGameTimeText->SetText(FText::FromString(FString::FromInt(GameMode->GetScoreToWin())));
+	ScoreToWinText->SetText(FText::FromString(FString::FromInt(GameMode->GetScoreToWin())));
 }
 
 void UStartGameMenuWidget::Display()

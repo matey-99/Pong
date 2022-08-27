@@ -27,7 +27,7 @@ APongGameState::APongGameState()
 	bInPlayState = false;
 }
 
-void APongGameState::Reset()
+void APongGameState::ResetStates()
 {
 	GameTime = 0.0f;
 	CurrentBallSpeed = StartBallSpeed;
@@ -38,6 +38,8 @@ void APongGameState::Reset()
 	Player1Score = 0;
 	Player2Score = 0;
 	WinnerNumber = 0;
+
+	UpdatePlayerGamePanels();
 }
 
 void APongGameState::IncreaseBallSpeed()
@@ -79,7 +81,7 @@ void APongGameState::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bBallInGame)
+	if (bInPlayState && bBallInGame)
 	{
 		GameTime += DeltaTime;
 		if (GameTime >= PongGameMode->GetMaxGameTime())
@@ -87,9 +89,9 @@ void APongGameState::Tick(float DeltaTime)
 			PongGameMode->EndGame();
 			return;
 		}
-
-		UpdatePlayerGamePanels();
 	}
+
+	UpdatePlayerGamePanels();
 }
 
 void APongGameState::UpdatePlayerGamePanels()
@@ -97,10 +99,10 @@ void APongGameState::UpdatePlayerGamePanels()
 	int PlayerNum = UGameplayStatics::GetNumPlayerControllers(GetWorld());
 	for (int32 Count = 0; Count < PlayerNum; ++Count)
 	{
-		auto PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
-		auto PongPC = Cast<APongPlayerController>(PC);
+		APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), Count);
+		APongPlayerController* PongPC = Cast<APongPlayerController>(PC);
 
-		auto GamePanel = PongPC->GetGamePanelWidget();
+		UGamePanelWidget* GamePanel = PongPC->GetGamePanelWidget();
 		GamePanel->UpdateGameTimeText(GameTime);
 		GamePanel->UpdatePlayer1Score(Player1Score);
 		GamePanel->UpdatePlayer2Score(Player2Score);
