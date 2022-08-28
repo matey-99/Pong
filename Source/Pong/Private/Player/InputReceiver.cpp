@@ -7,27 +7,11 @@
 #include "Player/PlayerPawn.h"
 #include "GameMode/PongGameMode.h"
 
-// Sets default values
 AInputReceiver::AInputReceiver()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void AInputReceiver::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AInputReceiver::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
 void AInputReceiver::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -39,12 +23,18 @@ void AInputReceiver::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AInputReceiver::MovePlayer1(float Value)
 {
-	Player1Pawn->Move(Value);
+	if (Player1Pawn)
+	{
+		Player1Pawn->Move(Value);
+	}
 }
 
 void AInputReceiver::MovePlayer2(float Value)
 {
-	Player2Pawn->Move(-Value);
+	if (Player2Pawn)
+	{
+		Player2Pawn->Move(-Value);
+	}
 }
 
 void AInputReceiver::Shoot()

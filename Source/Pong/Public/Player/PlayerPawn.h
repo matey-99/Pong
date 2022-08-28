@@ -8,34 +8,31 @@
 
 class UFloatingPawnMovement;
 
+/**
+ * Pawn class for each player
+ */
 UCLASS()
 class PONG_API APlayerPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	APlayerPawn();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
+	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** Moves pawn with given value using UFloatingPawnMovement component */
 	void Move(float Value);
 
 	FORCEINLINE UStaticMeshComponent* GetStaticMeshComponent() const { return StaticMeshComponent; }
 
 private:
+	/** Main static mesh for player pawn */
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMeshComponent;
 
+	/** Movement component for player pawn */
 	UPROPERTY(EditDefaultsOnly)
 	UFloatingPawnMovement* FloatingPawnMovement;
 };

@@ -29,7 +29,7 @@ void UFinalScoreWidget::OnPlayAgainButtonClicked()
 
 	APongGameMode* GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->ResetGame();
-	GameMode->StartGame();
+	GameMode->StartGame(GameMode->GetSelectedPlayerGameMode());
 }
 
 void UFinalScoreWidget::OnBackButtonClicked()

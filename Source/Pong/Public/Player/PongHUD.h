@@ -7,7 +7,7 @@
 #include "PongHUD.generated.h"
 
 /**
- * 
+ * Pong HUD
  */
 UCLASS()
 class PONG_API APongHUD : public AHUD

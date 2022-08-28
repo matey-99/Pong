@@ -7,7 +7,7 @@
 #include "PongPlayerState.generated.h"
 
 /**
- * 
+ * Pong Player State
  */
 UCLASS()
 class PONG_API APongPlayerState : public APlayerState

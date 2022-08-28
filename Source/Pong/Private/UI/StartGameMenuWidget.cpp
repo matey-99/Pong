@@ -18,10 +18,9 @@ UStartGameMenuWidget::UStartGameMenuWidget(const FObjectInitializer& ObjectIniti
 
 void UStartGameMenuWidget::NativeConstruct()
 {
-	LocalPlayerVsPlayerButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::StartLocalPlayerVsPlayerGame);
-	OnlinePlayerVsPlayerButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::StartOnlinePlayerVsPlayerGame);
-	PlayerVsAIButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::StartPlayerVsAIGame);
-	BackButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::Hide);
+	LocalPlayerVsPlayerButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::OnLocalPlayerVsPlayerButtonClicked);
+	PlayerVsAIButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::OnPlayerVsAIButtonClicked);
+	BackButton->OnClicked.AddUniqueDynamic(this, &UStartGameMenuWidget::OnBackButtonClicked);
 
 	MaxGameTimeSlider->OnValueChanged.AddUniqueDynamic(this, &UStartGameMenuWidget::OnMaxGameTimeSliderValueChanged);
 	ScoreToWinSlider->OnValueChanged.AddUniqueDynamic(this, &UStartGameMenuWidget::OnScoreToWinSliderValueChanged);
@@ -58,22 +57,26 @@ void UStartGameMenuWidget::Hide()
 	MainMenuWidget->AddToViewport();
 }
 
-void UStartGameMenuWidget::StartLocalPlayerVsPlayerGame()
+void UStartGameMenuWidget::OnLocalPlayerVsPlayerButtonClicked()
 {
-	MainMenuWidget->HideAllWidgets();
+	RemoveFromParent();
+
 	MainMenuWidget->RemoveFromParent();
 	MainMenuWidget = nullptr;
 
 	auto GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->StartGame();
+	GameMode->StartGame(EPlayerGameMode::LocalPlayerVsPlayer);
 }
 
-void UStartGameMenuWidget::StartOnlinePlayerVsPlayerGame()
+void UStartGameMenuWidget::OnPlayerVsAIButtonClicked()
 {
-}
+	RemoveFromParent();
 
-void UStartGameMenuWidget::StartPlayerVsAIGame()
-{
+	MainMenuWidget->RemoveFromParent();
+	MainMenuWidget = nullptr;
+
+	auto GameMode = Cast<APongGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->StartGame(EPlayerGameMode::PlayerVsAI);
 }
 
 void UStartGameMenuWidget::OnMaxGameTimeSliderValueChanged(float Value)
@@ -90,4 +93,9 @@ void UStartGameMenuWidget::OnScoreToWinSliderValueChanged(float Value)
 	GameMode->SetScoreToWin(Value);
 
 	ScoreToWinText->SetText(FText::FromString(FString::FromInt(Value)));
+}
+
+void UStartGameMenuWidget::OnBackButtonClicked()
+{
+	Hide();
 }

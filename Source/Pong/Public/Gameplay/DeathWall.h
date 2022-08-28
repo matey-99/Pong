@@ -7,6 +7,9 @@
 #include "Player/PlayerNumber.h"
 #include "DeathWall.generated.h"
 
+/**
+ * Death wall actor
+ */
 UCLASS()
 class PONG_API ADeathWall : public AActor
 {
@@ -16,6 +19,7 @@ public:
 	FORCEINLINE EPlayerNumber GetConnectedPlayerNumber() const { return ConnectedPlayerNumber; }
 
 private:
+	/** Player that is owner of this death wall */
 	UPROPERTY(EditAnywhere)
 	EPlayerNumber ConnectedPlayerNumber;
 };

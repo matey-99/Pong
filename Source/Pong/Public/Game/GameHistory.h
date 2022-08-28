@@ -6,7 +6,7 @@
 #include "GameHistory.generated.h"
 
 /**
- * 
+ * Contains data about one game
  */
 USTRUCT(BlueprintType)
 struct FGameHistoryEntry
@@ -23,6 +23,9 @@ struct FGameHistoryEntry
 	int8 Player2Score;
 };
 
+/**
+ * Contains data about each saved game
+ */
 USTRUCT(BlueprintType)
 struct FGameHistory
 {

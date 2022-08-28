@@ -4,11 +4,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
-// Sets default values
 APlayerPawn::APlayerPawn()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	RootComponent = StaticMeshComponent;
@@ -16,22 +14,6 @@ APlayerPawn::APlayerPawn()
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 }
 
-// Called when the game starts or when spawned
-void APlayerPawn::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void APlayerPawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	//if (StaticMeshComponent->GetLocation)
-
-}
-
-// Called to bind functionality to input
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

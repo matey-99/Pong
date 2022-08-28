@@ -11,8 +11,8 @@ class USlider;
 class UTextBlock;
 class UMainMenuWidget;
 
-/**
- * 
+/** 
+ * Contains game rules settings and player modes choice.
  */
 UCLASS()
 class PONG_API UStartGameMenuWidget : public UUserWidget
@@ -40,13 +40,10 @@ protected:
 
 private:
 	UFUNCTION()
-	void StartLocalPlayerVsPlayerGame();
+	void OnLocalPlayerVsPlayerButtonClicked();
 
 	UFUNCTION()
-	void StartOnlinePlayerVsPlayerGame();
-
-	UFUNCTION()
-	void StartPlayerVsAIGame();
+	void OnPlayerVsAIButtonClicked();
 
 	UFUNCTION()
 	void OnMaxGameTimeSliderValueChanged(float Value);
@@ -54,30 +51,38 @@ private:
 	UFUNCTION()
 	void OnScoreToWinSliderValueChanged(float Value);
 
+	UFUNCTION()
+	void OnBackButtonClicked();
+
 private:
+	/** Button that starts local player vs player game on click */
 	UPROPERTY(Meta = (BindWidget))
 	UButton* LocalPlayerVsPlayerButton;
 
-	UPROPERTY(Meta = (BindWidget))
-	UButton* OnlinePlayerVsPlayerButton;
-
+	/** Button that starts player vs AI game on click */
 	UPROPERTY(Meta = (BindWidget))
 	UButton* PlayerVsAIButton;
 
+	/** Slider that changes max game time */
 	UPROPERTY(Meta = (BindWidget))
 	USlider* MaxGameTimeSlider;
 
+	/** TextBlock that displays max game time */
 	UPROPERTY(Meta = (BindWidget))
 	UTextBlock* MaxGameTimeText;
 
+	/** Slider that changes score needed to win */
 	UPROPERTY(Meta = (BindWidget))
 	USlider* ScoreToWinSlider;
 
+	/** TextBlock that displays score needed to win */
 	UPROPERTY(Meta = (BindWidget))
 	UTextBlock* ScoreToWinText;
 
+	/** Button that hiding this widget and displays main menu */
 	UPROPERTY(Meta = (BindWidget))
 	UButton* BackButton;
 
+	/** Main menu widget, initialized in Init method */
 	UMainMenuWidget* MainMenuWidget;
 };

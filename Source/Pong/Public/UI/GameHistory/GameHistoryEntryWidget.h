@@ -9,7 +9,7 @@
 class UTextBlock;
 
 /**
- * 
+ * Represents each games history entry in UGameHistoryWidget
  */
 UCLASS()
 class PONG_API UGameHistoryEntryWidget : public UUserWidget
@@ -23,12 +23,15 @@ public:
 	void Init(FDateTime GameDateTime, int8 Player1Score, int8 Player2Score);
 
 private:
+	/** TextBlock that displays game date time of given entry */
 	UPROPERTY(Meta = (BindWidget))
 	UTextBlock* GameDateTimeText;
 
+	/** TextBlock that displays player 1 score of given entry */
 	UPROPERTY(Meta = (BindWidget))
 	UTextBlock* Player1Text;
 
+	/** TextBlock that displays player 2 score of given entry */
 	UPROPERTY(Meta = (BindWidget))
 	UTextBlock* Player2Text;
 };

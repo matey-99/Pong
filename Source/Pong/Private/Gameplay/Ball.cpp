@@ -9,21 +9,19 @@
 
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 ABall::ABall()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMesh->SetupAttachment(GetRootComponent());
+	RootComponent = StaticMesh;
 
 	StaticMesh->SetSimulatePhysics(true);
 	StaticMesh->SetEnableGravity(false);
 }
 
-// Called when the game starts or when spawned
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
@@ -32,7 +30,6 @@ void ABall::BeginPlay()
 
 }
 
-// Called every frame
 void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

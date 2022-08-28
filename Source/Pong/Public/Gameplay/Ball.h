@@ -7,23 +7,25 @@
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
 
+/**
+ * Ball actor
+ */
 UCLASS()
 class PONG_API ABall : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ABall();
 
 protected:
-	// Called when the game starts or when spawned
+	// AActor
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	// End of AActor
 
+public:
+	/** Adds given velocity to ball */
 	void Shoot(FVector Velocity);
 
 	UFUNCTION(BlueprintCallable)
@@ -34,6 +36,7 @@ private:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
+	/** Main Static Mesh of ball */
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 };

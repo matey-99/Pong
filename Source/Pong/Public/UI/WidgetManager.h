@@ -8,6 +8,10 @@
 #include "Blueprint/UserWidget.h"
 #include "WidgetManager.generated.h"
 
+/** 
+ * Contains all single instance widgets and usable widget classes.
+ * Instance of AWidgetManager created by APongGameMode on BeginPlay method. 
+ */
 UCLASS()
 class PONG_API AWidgetManager : public AActor
 {

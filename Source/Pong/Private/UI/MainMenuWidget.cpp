@@ -12,14 +12,6 @@
 #include "UI/StartGameMenuWidget.h"
 #include "UI/GameHistory/GameHistoryWidget.h"
 
-void UMainMenuWidget::HideAllWidgets()
-{
-	for (auto Widget : Widgets)
-		Widget->RemoveFromParent();
-
-	Widgets.Empty();
-}
-
 UMainMenuWidget::UMainMenuWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -40,8 +32,6 @@ void UMainMenuWidget::OnStartGameButtonClicked()
 	StartGameMenu->AddToViewport();
 
 	RemoveFromParent();
-
-	Widgets.Add(StartGameMenu);
 }
 
 void UMainMenuWidget::OnQuitGameButtonClicked()
@@ -58,6 +48,4 @@ void UMainMenuWidget::OnHistoryButtonClicked()
 	GameHistory->AddToViewport();
 
 	RemoveFromParent();
-
-	Widgets.Add(GameHistory);
 }

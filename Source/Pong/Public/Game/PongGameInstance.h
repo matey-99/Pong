@@ -8,7 +8,7 @@
 #include "PongGameInstance.generated.h"
 
 /**
- * 
+ * Pong Game Instance
  */
 UCLASS()
 class PONG_API UPongGameInstance : public UGameInstance
@@ -18,14 +18,17 @@ class PONG_API UPongGameInstance : public UGameInstance
 public:
 	UPongGameInstance(const FObjectInitializer& ObjectInitializer);
 
+	/** Adds entry to games history */
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AddEntryToGameHistory(const FGameHistoryEntry& Entry) { GameHistory.Entries.Add(Entry); }
 
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FGameHistory GetGameHistory() const { return GameHistory; }
-
+	/** Serializes games history to json file (json file path: {ProjectPath}/Saved/GameHistory.json) */
 	UFUNCTION(BlueprintCallable)
 	void SerializeGameHistory();
+
+	// Getters
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FGameHistory GetGameHistory() const { return GameHistory; }
 
 private:
 	UPROPERTY(VisibleAnywhere)

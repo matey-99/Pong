@@ -12,7 +12,6 @@ APongGameState::APongGameState()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WinnerNumber = 0;
 	Player1Score = 0;
 	Player2Score = 0;
 
@@ -37,7 +36,6 @@ void APongGameState::ResetStates()
 
 	Player1Score = 0;
 	Player2Score = 0;
-	WinnerNumber = 0;
 
 	UpdatePlayerGamePanels();
 }
@@ -54,7 +52,6 @@ void APongGameState::Player1AddPoint()
 	if (Player1Score >= PongGameMode->GetScoreToWin())
 	{
 		bInPlayState = false;
-		WinnerNumber = 1;
 		PongGameMode->EndGame();
 	}
 }
@@ -65,7 +62,6 @@ void APongGameState::Player2AddPoint()
 	if (Player2Score >= PongGameMode->GetScoreToWin())
 	{
 		bInPlayState = false;
-		WinnerNumber = 2;
 		PongGameMode->EndGame();
 	}
 }
